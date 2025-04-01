@@ -221,7 +221,7 @@ def login():
             # user[0]=id	user[1]=email	user[2]=password	user[3]=role
         # print(user[2])
         # print(password)
-        if user and bcrypt.check_password_hash(user[2], password):
+        if user[2] and bcrypt.check_password_hash(user[2], password):
             # print("in")
             session['user_id'] = user[0]
             session['role'] = user[3]
