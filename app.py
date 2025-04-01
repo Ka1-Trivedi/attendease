@@ -20,7 +20,7 @@ login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 
 # database path
-DB_PATH = "attendance_system/database/attendance.db"
+DB_PATH = "database/attendance.db"
 
 # Ensure the database directory exists
 os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
@@ -221,7 +221,7 @@ def login():
             # user[0]=id	user[1]=email	user[2]=password	user[3]=role
         # print(user[2])
         # print(password)
-        if user[2] and bcrypt.check_password_hash(user[2], password):
+        if user and bcrypt.check_password_hash(user[2], password):
             # print("in")
             session['user_id'] = user[0]
             session['role'] = user[3]
