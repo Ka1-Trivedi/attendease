@@ -12,17 +12,17 @@
         <form method="POST">
             <div class="mb-3">
                 <label for="name" class="form-label">Name:</label>
-                <input type="text" id="name" name="name" value="{{ student[1] }}" class="form-control" required>
+                <input type="text" id="name" name="name" value="{{ student[0] }}" class="form-control" required>
             </div>
             <div class="mb-3">
                 <label for="email" class="form-label">Email:</label>
-                <input type="email" id="email" name="email" value="{{ student[2] }}" class="form-control" required>
+                <input type="email" id="email" name="email" value="{{ student[1] }}" class="form-control" required>
             </div>
             <div class="mb-3">
                 <label for="class_id" class="form-label">Class:</label>
                 <select id="class_id" name="class_id" class="form-select" required>
                     {% for class_ in classes %}
-                    <option value="{{ class_[0] }}" {% if class_[0] == student[3] %}selected{% endif %}>
+                    <option value="{{ class_[0] }}" >
                         {{ class_[1] }}
                     </option>
                     {% endfor %}

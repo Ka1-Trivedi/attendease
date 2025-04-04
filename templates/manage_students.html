@@ -82,7 +82,7 @@
                             <td>{{ student[2] }}</td>
                             <td>{{ student[3] }}</td>
                             <td>
-                                <a href="{{ url_for('edit_student', student_id=student[0]) }}" class="btn btn-warning btn-sm">Edit</a>
+                                <a href="{{ url_for('edit_student', student_id=student[4]) }}" class="btn btn-warning btn-sm">Edit</a>
                                 <a href="{{ url_for('delete_student', student_id=student[0]) }}" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure?')">Delete</a>
                             </td>
                         </tr>

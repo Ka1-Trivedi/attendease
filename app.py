@@ -543,7 +543,7 @@ def manage_students():
     classes = cursor.fetchall()
 
     # Build the query for filtering students
-    query = "SELECT Student.id, Student.name, Student.email, Class.name FROM Student JOIN Class ON Student.class_id = Class.id JOIN Department ON Class.department_id = Department.id"
+    query = "SELECT Student.id, Student.name, Student.email, Class.name,Student.user_id FROM Student JOIN Class ON Student.class_id = Class.id JOIN Department ON Class.department_id = Department.id"
     filters = []
     params = []
 
@@ -592,14 +592,13 @@ def edit_student(student_id):
         new_name = request.form['name']
         new_email = request.form['email']
         new_class_id = request.form['class_id']
-        cursor.execute("UPDATE Student SET name = ?, class_id = ? WHERE id = ?", (new_name, new_class_id, student_id))
+        cursor.execute("UPDATE Student SET name = ?,email = ?, class_id = ? WHERE user_id = ?", (new_name, new_email, new_class_id, student_id))
         cursor.execute("UPDATE users SET email = ? WHERE id = ?", (new_email, student_id))
-        cursor.execute("UPDATE users SET name = ?, email = ?, clss_id = ? WHERE id = ?", (new_name, new_email, new_class_id, student_id))
         conn.commit()
         conn.close()
 
         return redirect(url_for('manage_students'))
-    cursor.execute("SELECT * FROM users WHERE id = ?", (student_id,))
+    cursor.execute("SELECT name,email FROM Student WHERE user_id = ?", (student_id,))
     student = cursor.fetchone()
 
     cursor.execute("SELECT * FROM Class")
@@ -1061,6 +1060,11 @@ def download_IA_Result(test_id):
 def close_IA(test_id):
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
+    
+    cursor.execute("SELECT test_id FROM Student_result WHERE test_id = ?", (test_id,))
+    Genrated_result = cursor.fetchall()
+    if Genrated_result != None:
+       return f"Test is already closed! 🤦‍♂️ <a href='{url_for('list_IA', teacher_id=session['user_id'])}'>List_IA </a>" 
     
     # Fetch class_id as a single value
     cursor.execute("SELECT class_id FROM Tests WHERE test_id = ?", (test_id,))
