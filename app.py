@@ -572,16 +572,6 @@ def manage_students():
     return render_template('manage_students.html', students=students, schools=schools, departments=departments, classes=classes)
 
 
-    # cursor.execute('''
-    #     SELECT Student.id, Student.name, users.email, Class.name FROM Student
-    #     JOIN users ON Student.id = users.id
-    #     JOIN Class ON Student.class_id = Class.id
-    #     WHERE users.role = 'student'
-    # ''')
-    # students = cursor.fetchall()
-    # conn.close()
-    # return render_template('manage_students.html',students = students )
-
 @app.route('/edit_student/<int:student_id>', methods=['GET', 'POST'])
 @teacher_or_admin_required
 def edit_student(student_id):
@@ -946,10 +936,9 @@ def available_IA(student_id):
         SELECT Tests.test_id, Tests.test_name, Tests.subject 
         FROM Tests 
         JOIN Student ON Student.class_id = Tests.class_id 
-        WHERE Student.user_id = ? AND Tests.ia_date = ?
-    ''', (student_id, pd.Timestamp.now().strftime('%Y-%m-%d')))
+        WHERE Student.user_id = ? AND Tests.ia_date = date('now')
+    ''', (student_id,))
     test_details = cursor.fetchall()
-    # print(test_details)
     # test_details contains tuples: (test_id, test_name, subject)
 
     conn.close()
@@ -1061,55 +1050,57 @@ def download_IA_Result(test_id):
 def close_IA(test_id):
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
+
+    cursor.execute("SELECT test_id FROM Student_result GROUP BY test_id")
+    closed_test_list = [row[0] for row in cursor.fetchall()]  # Extract test_id values from tuples
     
-    cursor.execute("SELECT test_id FROM Student_result WHERE test_id = ?", (test_id,))
-    Genrated_result = cursor.fetchall()
-    if Genrated_result != None:
-       return f"Test is already closed! 🤦‍♂️ <a href='{url_for('list_IA', teacher_id=session['user_id'])}'>List_IA </a>" 
-    
-    # Fetch class_id as a single value
-    cursor.execute("SELECT class_id FROM Tests WHERE test_id = ?", (test_id,))
-    class_id_tuple = cursor.fetchall()
-    if class_id_tuple is None:
+    if test_id in closed_test_list:
         conn.close()
-        return "Error: Test not found", 404
-    for class_id in class_id_tuple: # Extract the value from the tuple
+        return f"Test is already Closed 🤦‍♂️!!<a href='{url_for('list_IA', teacher_id=session['user_id'])}'>List_IA</a>"
+    else:
+        # Fetch class_id as a single value
+        cursor.execute("SELECT class_id FROM Tests WHERE test_id = ?", (test_id,))
+        class_id_tuple = cursor.fetchall()
+        if class_id_tuple is None:
+            conn.close()
+            return "Error: Test not found", 404
+        for class_id in class_id_tuple: # Extract the value from the tuple
 
-        # Fetch roll numbers of students in the class
-        cursor.execute("SELECT roll_number FROM Student WHERE class_id = ?", (class_id[0],))
-        rolls = cursor.fetchall()
+            # Fetch roll numbers of students in the class
+            cursor.execute("SELECT roll_number FROM Student WHERE class_id = ?", (class_id[0],))
+            rolls = cursor.fetchall()
 
-        # Fetch roll numbers of students who have given the IA
-        cursor.execute("SELECT roll FROM Test_Response WHERE test_id = ?", (test_id,))
-        ia_given_rolls = cursor.fetchall()
+            # Fetch roll numbers of students who have given the IA
+            cursor.execute("SELECT roll FROM Test_Response WHERE test_id = ?", (test_id,))
+            ia_given_rolls = cursor.fetchall()
 
-        for roll_tuple in rolls:
-            roll = roll_tuple[0]  # Extract the roll number from the tuple
-            markes = 0
-            total_markes = cursor.execute("SELECT count(qid) FROM Test_Questions WHERE test_id = ?", (test_id,)).fetchone()[0]
-            if roll in [r[0] for r in ia_given_rolls]:  # Compare roll numbers
-                qids = cursor.execute("SELECT qid FROM Test_Questions WHERE test_id = ?", (test_id,)).fetchall()
-                for qid_tuple in qids:
-                    qid = qid_tuple[0]  # Extract the qid value
-                    answer = cursor.execute(
-                        "SELECT answer FROM Test_Questions WHERE test_id = ? AND qid = ?", (test_id, qid)
-                    ).fetchone()
-                    response_ans = cursor.execute(
-                        "SELECT answer FROM Test_Response WHERE roll = ? AND qid = ? AND test_id = ?", (roll, qid, test_id)
-                    ).fetchone()
-                    if response_ans == answer:
-                        markes += 1
-            cursor.execute(
-                "INSERT INTO Student_Result (roll, class_id, test_id, markes, total_markes) VALUES (?, ?, ?, ?, ?)",
-                (roll, class_id[0], test_id, markes, total_markes,)
-            )
-            conn.commit()
+            for roll_tuple in rolls:
+                roll = roll_tuple[0]  # Extract the roll number from the tuple
+                markes = 0
+                total_markes = cursor.execute("SELECT count(qid) FROM Test_Questions WHERE test_id = ?", (test_id,)).fetchone()[0]
+                if roll in [r[0] for r in ia_given_rolls]:  # Compare roll numbers
+                    qids = cursor.execute("SELECT qid FROM Test_Questions WHERE test_id = ?", (test_id,)).fetchall()
+                    for qid_tuple in qids:
+                        qid = qid_tuple[0]  # Extract the qid value
+                        answer = cursor.execute(
+                            "SELECT answer FROM Test_Questions WHERE test_id = ? AND qid = ?", (test_id, qid)
+                        ).fetchone()
+                        response_ans = cursor.execute(
+                            "SELECT answer FROM Test_Response WHERE roll = ? AND qid = ? AND test_id = ?", (roll, qid, test_id)
+                        ).fetchone()
+                        if response_ans == answer:
+                            markes += 1
+                cursor.execute(
+                    "INSERT INTO Student_Result (roll, class_id, test_id, markes, total_markes) VALUES (?, ?, ?, ?, ?)",
+                    (roll, class_id[0], test_id, markes, total_markes,)
+                )
+                conn.commit()
 
-    cursor.execute("DELETE FROM Test_Response WHERE test_id = ?",(test_id,))
-    cursor.execute("DELETE FROM Test_Questions WHERE test_id = ?",(test_id,))
-    conn.commit()
-    conn.close()
-    return f"Test Closed. Result Generated successfully! 🤦‍♂️🥳 <a href='{url_for('teacher_dashboard', teacher_id=session['user_id'])}'>Teacher Dashboard</a>"
+        cursor.execute("DELETE FROM Test_Response WHERE test_id = ?",(test_id,))
+        cursor.execute("DELETE FROM Test_Questions WHERE test_id = ?",(test_id,))
+        conn.commit()
+        conn.close()
+        return f"Test Closed. Result Generated successfully! 🤦‍♂️🥳 <a href='{url_for('teacher_dashboard', teacher_id=session['user_id'])}'>Teacher Dashboard</a>"
 
 
 @app.route('/logout')
