@@ -946,9 +946,10 @@ def available_IA(student_id):
         SELECT Tests.test_id, Tests.test_name, Tests.subject 
         FROM Tests 
         JOIN Student ON Student.class_id = Tests.class_id 
-        WHERE Student.user_id = ? AND Tests.ia_date = date('now')
-    ''', (student_id,))
+        WHERE Student.user_id = ? AND Tests.ia_date = ?
+    ''', (student_id, pd.Timestamp.now().strftime('%Y-%m-%d')))
     test_details = cursor.fetchall()
+    # print(test_details)
     # test_details contains tuples: (test_id, test_name, subject)
 
     conn.close()
