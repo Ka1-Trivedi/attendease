@@ -1,61 +1,69 @@
 # Attendease
 
-A simple attendance management web application (Flask) for schools: admin, teacher, and student dashboards with student upload, attendance marking, and reporting.
+A lightweight attendance and Internal Assessment (IA) management web application for schools. Built with Flask, Attendease provides Admin, Teacher, and Student interfaces to manage classes, mark attendance, and run assessments.
 
-## Table of Contents
-- [Features](#features)
-- [Tech Stack](#tech-stack)
-- [Prerequisites](#prerequisites)
-- [Quick Start](#quick-start)
-- [Docker](#docker)
-- [Project Structure](#project-structure)
-- [Contributing](#contributing)
-- [License](#license)
-- [Contact](#contact)
+---
+
+Table of contents
+- Features
+- Live demo
+- Tech stack
+- Prerequisites
+- Quick start
+- Docker
+- Configuration
+- Project structure
+- Demo/test accounts
+- Notes
+- Contributing
+- License
+- Contact
 
 ## Features
-- Admin, teacher, and student dashboards
-- Add / edit schools, departments, classes, teachers, and students
-- Upload students in bulk
-- Mark and view attendance
-- Generate simple attendance reports
+- Admin panel: manage schools, departments, classes, teachers, and students (CRUD).
+- Teacher panel: mark attendance, create/close IAs, export attendance and IA results as CSV.
+- Student panel: view attendance and take IAs (single submission before deadline).
+- Bulk student upload and CSV export for reports.
 
-## Tech Stack
-- Python (Flask)
-- HTML templates (Jinja2) in the `templates/` folder
-- SQLite or simple file-based storage (see `database/`)
+## Live demo
+Try the public demo: https://attendease-ptgu.onrender.com/ (or the project demo link provided in repository notes).
+
+## Tech stack
+- Python 3.8+ with Flask
+- Jinja2 templates (in `templates/`)
+- Lightweight storage under `database/` (SQLite or similar)
 
 ## Prerequisites
-- Python 3.8+
-- `pip` available
-- (Optional) Docker for containerized runs
+- Python 3.8 or newer
+- `pip`
+- (Optional) Docker
 
-## Quick Start
-1. Clone the repository
+## Quick start (local)
+1. Clone the repository and enter the folder:
 
 ```bash
 git clone <your-repo-url>
 cd attendease
 ```
 
-2. Create and activate a virtual environment
+2. Create and activate a virtual environment:
 
 ```bash
 python -m venv .venv
 source .venv/bin/activate
 ```
 
-3. Install dependencies
+3. Install dependencies:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-4. Run the app locally
+4. Run the app:
 
 ```bash
 python app.py
-# or, if using Flask CLI:
+# or
 export FLASK_APP=app.py
 flask run
 ```
@@ -63,39 +71,58 @@ flask run
 Open http://127.0.0.1:5000 in your browser.
 
 ## Docker
-Build and run the container (if you prefer Docker):
+Build and run with Docker:
 
 ```bash
 docker build -t attendease:latest .
 docker run -p 5000:5000 attendease:latest
 ```
 
-## Project Structure (high level)
+## Configuration
+- Check `app.py` and `admin.py` for configuration points (DB path, secret keys, ports).
+- If you prefer environment variables, create a `.env` or provide a `config.py` and export variables before running.
+
+## Project structure (high level)
 - `app.py` — application entrypoint
 - `admin.py` — admin helpers / routes
 - `requirements.txt` — Python dependencies
 - `Dockerfile` — container definition
-- `database/` — data files or migrations
-- `templates/` — HTML templates used by the app
+- `database/` — storage files or migrations
+- `templates/` — Jinja2 templates
 
 Notable templates: `login.html`, `admin_dashboard.html`, `teacher_dashboard.html`, `student_dashboard.html`, and pages for adding/editing entities.
 
-## Configuration
-- If the app reads environment variables or a config file, set them before running. Check `app.py` for any configurable options (port, DB path, secret keys).
+## Demo / test accounts
+Use these demo credentials when testing the public demo instance:
+
+Teacher (demo)
+- Email: `daatempteacher@gmail.com` or `dbmstempteacher@gmail.com`
+- Password: `123`
+
+Students (demo, password `456`)
+- CS Div-1: `jessica.mckinney665@gmail.com`
+- CS Div-2: `kristi.simon451@gmail.com`
+- CS Div-3: `craig.hawkins441@gmail.com`
+- BCA Div-1: `bryan.chavez968@gmail.com`
+- BCA Div-2: `sarah.baird966@gmail.com`
+- BCA Div-3: `jordan.stout435@gmail.com`
+
+## Notes
+- Demo site runs on free hosting; the database may reset periodically.
+- First visit may take 10–15 seconds while the instance spins up.
 
 ## Contributing
-- Fork the repo, create a feature branch, open a pull request with a clear description.
-- For bug reports or feature requests, open an issue describing steps to reproduce and expected behavior.
+- Fork the repo, create a feature branch, and open a pull request with a clear description.
+- Open issues for bugs or feature requests with steps to reproduce.
+- I can add a `CONTRIBUTING.md` and `.env.example` if you'd like.
 
 ## License
-This project is provided without a specified license. Add a `LICENSE` file (for example, MIT) to make reuse and contributions easier.
+No license file is included by default. Add a `LICENSE` (for example MIT) to enable easier reuse and contributions.
 
 ## Contact
-If you want help running or extending this project, open an issue or contact the repository owner.
+Authors: Kavan Trivedi and Hit Sheth
+For help or feedback, open an issue in this repository.
 
 ---
 
-If you'd like, I can:
-- add a sample `.env` or config example,
-- detect which database engine is used and add explicit setup notes, or
-- create a minimal `README` badge and license file.
+
